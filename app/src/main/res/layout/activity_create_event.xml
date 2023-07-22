@@ -71,6 +71,7 @@
                 />
 
             <RadioGroup
+                android:id="@+id/radioGroup"
                 android:orientation="horizontal"
                 android:layout_width="0dp"
                 android:layout_weight="1">
@@ -236,7 +237,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Cancel"
-            android:backgroundTint="@color/app_bg"
+            android:backgroundTint="@color/red"
             android:textColor="@color/black"
             android:textStyle="bold"
             android:layout_marginRight="5dp"
@@ -248,7 +249,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Share"
-            android:backgroundTint="@color/app_bg"
+            android:backgroundTint="@color/light_blue"
             android:textColor="@color/black"
             android:textStyle="bold"
             android:layout_marginRight="5dp"/>
@@ -259,7 +260,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Save"
-            android:backgroundTint="@color/app_bg"
+            android:backgroundTint="@color/green"
             android:textColor="@color/black"
             android:textStyle="bold"
             android:layout_marginRight="5dp"/>
