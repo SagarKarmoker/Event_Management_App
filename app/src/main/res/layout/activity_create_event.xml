@@ -185,7 +185,7 @@
                 android:layout_height="wrap_content"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:inputType="number"
+                android:inputType="phone"
                 />
         </TableRow>
 
@@ -201,10 +201,10 @@
             <EditText
                 android:id="@+id/etDsc"
                 android:layout_height="wrap_content"
-                android:lines="25"
+                android:lines="2"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:inputType="textLongMessage"
+                android:inputType="text"
                 />
         </TableRow>
 
@@ -213,12 +213,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-
-            android:text="Error message will be here !!!"
             android:textColor="@color/red"
             android:textSize="18sp"
             android:textStyle="bold"
-
             android:gravity="center"
             />
 

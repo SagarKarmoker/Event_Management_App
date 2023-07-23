@@ -1,24 +1,37 @@
 package edu.ewubd.CSE489232_2020_2_60_054;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-public class CreateEventActivity extends Activity {
+import androidx.appcompat.app.AppCompatActivity;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class CreateEventActivity extends AppCompatActivity {
 
     // R java generated Resource file
-    private EditText etName, etPlace, etDate, etCapacity, etBudget, etEmail, etPhone, etDsc;
-    private Button cancelBtn, shareBtn, saveBtn;
-    private TextView errorTv;
-    private RadioGroup radioGroup;
-    private String radioText = "";
+    EditText etName, etPlace, etDate, etCapacity, etBudget, etEmail, etPhone, etDsc;
+    Button cancelBtn, shareBtn, saveBtn;
+    TextView errorTv;
+    RadioGroup radioGroup;
+
+    RadioButton rIndoor, rOutdoor, rOnline;
     // error text
-    String err = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,53 +59,21 @@ public class CreateEventActivity extends Activity {
         // Radio
         radioGroup = findViewById(R.id.radioGroup);
 
-
-        //etName.getText() --> return editable object
-        String name = etName.getText().toString();
-        String capacity = etCapacity.getText().toString();
-        String place = etPlace.getText().toString();
-        String date = etDate.getText().toString();
-        String budget = etBudget.getText().toString();
-        String email = etEmail.getText().toString();
-        String phone = etPhone.getText().toString();
-        String desc = etDsc.getText().toString();
-
-        // converting string to Integer
-        int cap, event_budget;
-        long phn;
-
-        if(!capacity.isEmpty() && !budget.isEmpty() && !phone.isEmpty()){
-            cap = Integer.parseInt(capacity);
-            event_budget = Integer.parseInt(budget);
-            phn = Long.parseLong(phone);
-
-            if(cap <= 0 || cap > 1000 && event_budget > 0){
-                err += "Invalid capacity\n or invalid budget";
-            }
-        }
-
-
-        // error text show
-        if(!err.isEmpty()){
-            errorTv.setText(err);
-            return;
-        }
-        
         // radio button
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(checkedId == R.id.radioIndoor){
-                    radioText += "Indoor";
-                }
-                else if(checkedId == R.id.radioOutdoor){
-                    radioText += "Outdoor";
-                }
-                else if (checkedId == R.id.radioOnline) {
-                    radioText += "Online";
-                }
-            }
-        });
+//        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(RadioGroup group, int checkedId) {
+//                if(checkedId == R.id.radioIndoor){
+//                    radioText += "Indoor";
+//                }
+//                else if(checkedId == R.id.radioOutdoor){
+//                    radioText += "Outdoor";
+//                }
+//                else if (checkedId == R.id.radioOnline) {
+//                    radioText += "Online";
+//                }
+//            }
+//        });
 
 
         // button works
@@ -106,15 +87,107 @@ public class CreateEventActivity extends Activity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Save Button was clicked");
+                //radio button
+                rIndoor = findViewById(R.id.radioIndoor);
+                rOutdoor = findViewById(R.id.radioOutdoor);
+                rOnline = findViewById(R.id.radioOnline);
+
+                //etName.getText() --> return editable object
+                String name = etName.getText().toString();
+                String capacity = etCapacity.getText().toString();
+                String place = etPlace.getText().toString();
+                String date = etDate.getText().toString();
+                String budget = etBudget.getText().toString();
+                String email = etEmail.getText().toString();
+                String phone = etPhone.getText().toString();
+                String desc = etDsc.getText().toString();
+
+                String err = "";
 
                 // input field check
-                if(place.isEmpty() || date.isEmpty() || budget.isEmpty() || email.isEmpty() || phone.isEmpty() || desc.isEmpty()){
-                    if(name.isEmpty() || name.length() < 4 || name.length() > 12){
+                if(!name.isEmpty() && !place.isEmpty() && !date.isEmpty() && !capacity.isEmpty() && !budget.isEmpty() && !email.isEmpty() && !phone.isEmpty() && !desc.isEmpty()){
+                    //name
+                    if(name.length() < 4 || name.length() > 12 || !name.matches("^[a-zA-Z ]+$")){
                         err += "Invalid Name\n";
                     }
 
-                    err += "please fill all the fields";
+                    //place
+                    if(place.length() >= 6 && place.length() <= 64 && !place.matches("^[a-zA-Z0-9, ]+$")){
+                        err += "Invalid Place\n";
+                    }
+
+                    // radio button check
+                    boolean isIndoor = rIndoor.isChecked();
+                    boolean isOutdoor = rOutdoor.isChecked();
+                    boolean isOnline = rOnline.isChecked();
+
+                    if(!isIndoor && !isOutdoor && !isOnline){
+                        err += "Please select event type\n";
+                    }
+
+                    // converting string to Integer
+                    int cap;
+                    double event_budget;
+
+                    cap = Integer.parseInt(capacity);
+                    event_budget = Double.parseDouble(budget);
+
+                    if(cap <= 0){
+                        err += "Invalid capacity\n";
+                    }
+
+
+                    if(event_budget < 1000){
+                        err += "Invalid budget\n";
+                    }
+
+                    // Date and time checking
+                    String format = "yyyy-MM-dd HH:mm";
+                    Date checkDate = null;
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat(format);
+                        checkDate = sdf.parse(date);
+                        if (!date.equals(sdf.format(checkDate))) {
+                            checkDate = null;
+                        }
+                    } catch (ParseException ex) {
+                        ex.printStackTrace();
+                    }
+                    if (checkDate == null) {
+                        // Invalid date format
+                        err += "Invalid date format\n";
+                    }
+
+                    //email
+                    String EMAIL_REGEX = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+                    if(!email.matches(EMAIL_REGEX)){
+                        err += "Invalid email format\n";
+                    }
+
+                    //phone
+                    Pattern pattern = Pattern.compile("^\\+\\d{13}$");
+                    Matcher matcher = pattern.matcher(phone);
+                    if(!matcher.matches()){
+                        err += "Invalid phone number\n";
+                    }
+
+                    //description
+                    Log.d("desc", String.valueOf(desc.length()));
+                    if(desc.length() < 10 || desc.length() > 1000){
+                        err += "Invalid description format\n";
+                    }
+                }
+                else{
+                    err += "Fill all the fields\n";
+                }
+
+                //dialog
+                if(err.length() > 0){
+                    showErrorDialog(err);
+                    // error text show
+                    errorTv.setText(err);
+                }else{
+                    errorTv.setText("");
                 }
 
 
@@ -141,8 +214,21 @@ public class CreateEventActivity extends Activity {
         // end of on create
     }
 
-    // text input valid check
-    public void inputCheck(){
+    public void showErrorDialog(String errMsg){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Error");
+        builder.setMessage(errMsg);
+        builder.setCancelable(true);
 
+        builder.setPositiveButton("Back", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
+
 }
