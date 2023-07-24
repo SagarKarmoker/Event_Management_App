@@ -118,6 +118,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:inputType="datetime"
+                android:hint="yyyy-MM-dd HH:mm"
                 />
         </TableRow>
 

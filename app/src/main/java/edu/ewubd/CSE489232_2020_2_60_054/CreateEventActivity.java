@@ -1,4 +1,6 @@
 package edu.ewubd.CSE489232_2020_2_60_054;
+// Sagar Karmoker
+// ID:2020-2-60-054
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -59,23 +61,6 @@ public class CreateEventActivity extends AppCompatActivity {
         // Radio
         radioGroup = findViewById(R.id.radioGroup);
 
-        // radio button
-//        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(RadioGroup group, int checkedId) {
-//                if(checkedId == R.id.radioIndoor){
-//                    radioText += "Indoor";
-//                }
-//                else if(checkedId == R.id.radioOutdoor){
-//                    radioText += "Outdoor";
-//                }
-//                else if (checkedId == R.id.radioOnline) {
-//                    radioText += "Online";
-//                }
-//            }
-//        });
-
-
         // button works
         /*
         * physical event convert into software event
@@ -108,12 +93,12 @@ public class CreateEventActivity extends AppCompatActivity {
                 if(!name.isEmpty() && !place.isEmpty() && !date.isEmpty() && !capacity.isEmpty() && !budget.isEmpty() && !email.isEmpty() && !phone.isEmpty() && !desc.isEmpty()){
                     //name
                     if(name.length() < 4 || name.length() > 12 || !name.matches("^[a-zA-Z ]+$")){
-                        err += "Invalid Name\n";
+                        err += "Invalid Name (4-12 long and only alphabets)\n";
                     }
 
                     //place
                     if(place.length() >= 6 && place.length() <= 64 && !place.matches("^[a-zA-Z0-9, ]+$")){
-                        err += "Invalid Place\n";
+                        err += "Invalid Place (only alpha-numeric and , and 6-64 characters)\n";
                     }
 
                     // radio button check
@@ -133,12 +118,12 @@ public class CreateEventActivity extends AppCompatActivity {
                     event_budget = Double.parseDouble(budget);
 
                     if(cap <= 0){
-                        err += "Invalid capacity\n";
+                        err += "Invalid capacity (number greater than zero)\n";
                     }
 
 
                     if(event_budget < 1000){
-                        err += "Invalid budget\n";
+                        err += "Invalid budget (number greater than 1000.00)\n";
                     }
 
                     // Date and time checking
@@ -155,7 +140,7 @@ public class CreateEventActivity extends AppCompatActivity {
                     }
                     if (checkDate == null) {
                         // Invalid date format
-                        err += "Invalid date format\n";
+                        err += "Invalid date format (yyyy-MM-dd HH:mm)\n";
                     }
 
                     //email
@@ -168,13 +153,13 @@ public class CreateEventActivity extends AppCompatActivity {
                     Pattern pattern = Pattern.compile("^\\+\\d{13}$");
                     Matcher matcher = pattern.matcher(phone);
                     if(!matcher.matches()){
-                        err += "Invalid phone number\n";
+                        err += "Invalid phone number (format +8801234556789)\n";
                     }
 
                     //description
                     Log.d("desc", String.valueOf(desc.length()));
                     if(desc.length() < 10 || desc.length() > 1000){
-                        err += "Invalid description format\n";
+                        err += "Invalid description format (10-1000 characters)\n";
                     }
                 }
                 else{
