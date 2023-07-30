@@ -9,6 +9,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); // runtime call the abstract method
         //modify after that
-        setContentView(R.layout.activity_main); // resource.layout_directory.activityxml_file_name
+        setContentView(R.layout.main_activity); // resource.layout_directory.activityxml_file_name
     }
 }

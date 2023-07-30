@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -132,6 +133,11 @@ public class CreateEventActivity extends AppCompatActivity {
                     try {
                         SimpleDateFormat sdf = new SimpleDateFormat(format);
                         checkDate = sdf.parse(date);
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            LocalDateTime now = LocalDateTime.now();
+                            String current_date = String.valueOf(sdf.parse(String.valueOf(now)));
+//                            now.isBefore(checkDate);
+                        }
                         if (!date.equals(sdf.format(checkDate))) {
                             checkDate = null;
                         }
@@ -199,7 +205,7 @@ public class CreateEventActivity extends AppCompatActivity {
         // end of on create
     }
 
-    public void showErrorDialog(String errMsg){
+    private void showErrorDialog(String errMsg){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Error");
         builder.setMessage(errMsg);
