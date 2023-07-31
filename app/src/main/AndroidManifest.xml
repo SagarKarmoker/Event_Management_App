@@ -32,7 +32,10 @@
         <!-- Activity added -->
         <activity
             android:name=".MainActivity"
-            android:exported="true"></activity>
+            android:exported="true">
+
+
+        </activity>
     </application>
 
 </manifest>

@@ -9,14 +9,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SignupActivity extends Activity {
+public class SignupActivity extends AppCompatActivity {
 
     private Button goBtn, exitBtn;
 
@@ -27,7 +28,6 @@ public class SignupActivity extends Activity {
     private CheckBox reUser, rePass;
 
     private TableRow rowName, rowPhone, rowEmail, rowRepass;
-    LinearLayout hideLogin;
 
     private boolean isLogin = true;
 
@@ -91,7 +91,7 @@ public class SignupActivity extends Activity {
                         err += "Invalid userid (4-12 long and only alphabets and number)\n";
                     }
 
-                    if(pass.length() < 8 && !pass.equals(con_pass)){
+                    if(pass.length() < 8 || con_pass.length() != pass.length() || !pass.equals(con_pass)){
                         err += "Password should at least 8 char or Check your password\n";
                     }
 
@@ -113,8 +113,8 @@ public class SignupActivity extends Activity {
                         err += "Invalid userid (4-12 long and only alphabets and number)\n";
                     }
 
-                    if(pass.length() < 8 && !pass.equals(con_pass)){
-                        err += "Password should at least 8 char or Check your password\n";
+                    if(pass.length() < 8){
+                        err += "Please Check your password\n";
                     }
                 }
                 else {
