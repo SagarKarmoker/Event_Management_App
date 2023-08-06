@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,16 +31,19 @@ public class CreateEventActivity extends AppCompatActivity {
     EditText etName, etPlace, etDate, etCapacity, etBudget, etEmail, etPhone, etDsc;
     Button cancelBtn, shareBtn, saveBtn;
     TextView errorTv;
-    RadioGroup radioGroup;
 
     RadioButton rIndoor, rOutdoor, rOnline;
-    // error text
+    private String eventID = "";
+    private EventDB eventDB; // Database
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_event);
+
+        // database object
+        eventDB = new EventDB(this);
 
         // edittext fields
         etName = findViewById(R.id.etName);
@@ -58,9 +62,6 @@ public class CreateEventActivity extends AppCompatActivity {
 
         // textviews
         errorTv = findViewById(R.id.errorTv);
-
-        // Radio
-        radioGroup = findViewById(R.id.radioGroup);
 
         // button works
         /*
@@ -90,6 +91,10 @@ public class CreateEventActivity extends AppCompatActivity {
 
                 String err = "";
 
+                int _capacity = Integer.parseInt(capacity);
+                double _budget = Double.parseDouble(budget);
+                long _date = 0;
+
                 // input field check
                 if(!name.isEmpty() && !place.isEmpty() && !date.isEmpty() && !capacity.isEmpty() && !budget.isEmpty() && !email.isEmpty() && !phone.isEmpty() && !desc.isEmpty()){
                     //name
@@ -115,8 +120,8 @@ public class CreateEventActivity extends AppCompatActivity {
                     int cap;
                     double event_budget;
 
-                    cap = Integer.parseInt(capacity);
-                    event_budget = Double.parseDouble(budget);
+                    cap = _capacity;
+                    event_budget = _budget;
 
                     if(cap <= 0){
                         err += "Invalid capacity (number greater than zero)\n";
@@ -128,25 +133,29 @@ public class CreateEventActivity extends AppCompatActivity {
                     }
 
                     // Date and time checking
+
                     String format = "yyyy-MM-dd HH:mm";
-                    Date checkDate = null;
                     try {
-                        SimpleDateFormat sdf = new SimpleDateFormat(format);
-                        checkDate = sdf.parse(date);
+                        DateTimeFormatter formatter = null;
                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            LocalDateTime now = LocalDateTime.now();
-                            String current_date = String.valueOf(sdf.parse(String.valueOf(now)));
-//                            now.isBefore(checkDate);
+                            formatter = DateTimeFormatter.ofPattern(format);
+
+                            LocalDateTime inputDate = LocalDateTime.parse(date, formatter);
+                            LocalDateTime curDate = LocalDateTime.now();
+
+                            if (inputDate.isBefore(curDate)) {
+                                err += "Input date and time is before the current date and time\n" +
+                                        "or Invalid date format (yyyy-MM-dd HH:mm)\n";
+                            }
+                            else {
+                                _date = inputDate.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli();
+                                Log.d("mydate1", String.valueOf(_date));
+                            }
                         }
-                        if (!date.equals(sdf.format(checkDate))) {
-                            checkDate = null;
-                        }
-                    } catch (ParseException ex) {
+                    } catch (Exception ex) {
                         ex.printStackTrace();
-                    }
-                    if (checkDate == null) {
-                        // Invalid date format
-                        err += "Invalid date format (yyyy-MM-dd HH:mm)\n";
+                        Log.d("mydate", String.valueOf(ex));
+                        err += "Invalid date format (yyyy-MM-dd HH:mm)";
                     }
 
                     //email
@@ -177,11 +186,20 @@ public class CreateEventActivity extends AppCompatActivity {
                     showErrorDialog(err);
                     // error text show
                     errorTv.setText(err);
-                }else{
-                    errorTv.setText("");
                 }
 
+                // if data is valid save into database
+                if(eventID.isEmpty()){
+                    eventID = name + System.currentTimeMillis();
+                    eventDB.insertEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc);
 
+                    //after creating event
+                    Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
+                    startActivity(i);
+                }
+                else {
+                    eventDB.updateEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc);
+                }
             }
         });
 
