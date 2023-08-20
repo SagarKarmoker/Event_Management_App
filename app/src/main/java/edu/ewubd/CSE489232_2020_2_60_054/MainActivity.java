@@ -21,6 +21,8 @@ public class MainActivity extends Activity {
     private ArrayList<Event> events;
     private CustomEventAdapter adapter; //dynamically add the data
 
+    EventDB db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); // runtime call the abstract method
@@ -28,6 +30,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_activity); // resource.layout_directory.activityxml_file_name
         eventList = findViewById(R.id.eventList);
         events = new ArrayList<>();
+
+        db = new EventDB(this);
 
         createBtn = findViewById(R.id.createBtn);
         historyBtn = findViewById(R.id.historyBtn);
@@ -59,7 +63,6 @@ public class MainActivity extends Activity {
     private void loadEvents(){
         events.clear();
         String q = "SELECT * FROM events";
-        EventDB db = new EventDB(this);
         Cursor cur = db.selectEvents(q);
         if(cur != null){
             if(cur.getCount() > 0){ // number of rows
@@ -117,7 +120,7 @@ public class MainActivity extends Activity {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 String message = "Do you want to delete event - " + events.get(position).name + " ?";
                 System.out.println(message);
-                showDialog(message, "Delete Event", events.get(position).id); // key can be id
+                showDialog(message, "Delete Event", events.get(position)); // key can be id
                 return true;
             }
         });
@@ -125,7 +128,7 @@ public class MainActivity extends Activity {
 
 
     //todo showdiaglog
-    private void showDialog(String message, String title, String id){
+    private void showDialog(String message, String title, Event event){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
         builder.setMessage(message);
@@ -141,7 +144,8 @@ public class MainActivity extends Activity {
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                events.remove(Integer.parseInt(id));
+                //System.out.println(event.id);
+                db.deleteEvent(event.id);
             }
         });
 
