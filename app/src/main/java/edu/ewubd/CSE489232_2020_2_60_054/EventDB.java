@@ -18,13 +18,13 @@ public class EventDB extends SQLiteOpenHelper {
                 + "ID TEXT PRIMARY KEY,"
                 + "title TEXT NOT NULL,"
                 + "place TEXT NOT NULL,"
-                + "type TEXT,"
                 + "datetime INT,"
                 + "capacity INT,"
                 + "budget REAL,"
                 + "email TEXT,"
                 + "phone TEXT,"
-                + "description TEXT"
+                + "description TEXT,"
+                + "type TEXT"
                 + ")";
         db.execSQL(sql);
     }
@@ -33,13 +33,14 @@ public class EventDB extends SQLiteOpenHelper {
         System.out.println("Write code to modify database schema here");
         // db.execSQL("ALTER table my_table  ......");
     }
-    public void insertEvent(String ID, String title, String place, long datetime, int capacity, double budget, String email, String phone, String description) {
+    public void insertEvent(String ID, String title, String place, long datetime, int capacity, double budget, String email, String phone, String description, String type) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cols = new ContentValues();
         cols.put("ID", ID);
         cols.put("title", title);
 		cols.put("place", place);
         cols.put("datetime", datetime);
+        cols.put("type", type);
         cols.put("capacity", capacity);
         cols.put("budget", budget);
         cols.put("email", email);
@@ -52,12 +53,13 @@ public class EventDB extends SQLiteOpenHelper {
     /*
     Use hashmap (key, value will be matched) to custom updating feature, for updating particular data
     * */
-    public void updateEvent(String ID, String title, String place, long datetime, int capacity, double budget, String email, String phone, String description) {
+    public void updateEvent(String ID, String title, String place, long datetime, int capacity, double budget, String email, String phone, String description, String type) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("title", title);
         values.put("place", place);
         values.put("datetime", datetime);
+        values.put("type", type);
         values.put("capacity", capacity);
         values.put("budget", budget);
         values.put("email", email);

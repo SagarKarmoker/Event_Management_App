@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,6 +56,50 @@ public class CreateEventActivity extends AppCompatActivity {
         etPhone= findViewById(R.id.etPhone);
         etDsc = findViewById(R.id.etDsc);
 
+        //radio button
+        rIndoor = findViewById(R.id.radioIndoor);
+        rOutdoor = findViewById(R.id.radioOutdoor);
+        rOnline = findViewById(R.id.radioOnline);
+
+
+        //intent data (if event is need to updated)
+        Intent i = getIntent();
+        if(i.hasExtra("EventID")) {
+            eventID = i.getStringExtra("EventID");
+            etName.setText(i.getStringExtra("EventName"));
+            etPlace.setText(i.getStringExtra("EventPlace"));
+            etCapacity.setText(i.getStringExtra("EventCapacity"));
+            etBudget.setText(i.getStringExtra("EventBudget"));
+            etEmail.setText(i.getStringExtra("EventEmail"));
+            etPhone.setText(i.getStringExtra("EventPhone"));
+            etDsc.setText(i.getStringExtra("EventDesc"));
+
+            String datetime = i.getStringExtra("EventDateTime");
+            String type = i.getStringExtra("EventType");
+
+            //date use the date formatter
+            if(datetime != null)
+            {
+                long timeInMilli = Long.parseLong(datetime);
+                Date date = new Date(timeInMilli);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+                String formattedDate = sdf.format(date);
+                etDate.setText(formattedDate);
+
+            }
+
+            assert type != null;
+            if(type.equals("Indoor")){
+                rIndoor.setChecked(true);
+            }
+            if(type.equals("Outdoor")){
+                rOutdoor.setChecked(true);
+            }
+            if(type.equals("Online")){
+                rOnline.setChecked(true);
+            }
+        }
+
         // buttons
         cancelBtn = findViewById(R.id.cancelBtn);
         shareBtn = findViewById(R.id.shareBtn);
@@ -74,11 +119,6 @@ public class CreateEventActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //radio button
-                rIndoor = findViewById(R.id.radioIndoor);
-                rOutdoor = findViewById(R.id.radioOutdoor);
-                rOnline = findViewById(R.id.radioOnline);
-
                 //etName.getText() --> return editable object
                 String name = etName.getText().toString();
                 String capacity = etCapacity.getText().toString();
@@ -88,6 +128,7 @@ public class CreateEventActivity extends AppCompatActivity {
                 String email = etEmail.getText().toString();
                 String phone = etPhone.getText().toString();
                 String desc = etDsc.getText().toString();
+                String type = "";
 
                 String err = "";
 
@@ -115,7 +156,17 @@ public class CreateEventActivity extends AppCompatActivity {
                     if(!isIndoor && !isOutdoor && !isOnline){
                         err += "Please select event type\n";
                     }
-
+                    else{
+                        if(isIndoor){
+                            type = "Indoor";
+                        }
+                        if(isOutdoor){
+                            type = "Outdoor";
+                        }
+                        if(isOnline){
+                            type = "Online";
+                        }
+                    }
                     // converting string to Integer
                     int cap;
                     double event_budget;
@@ -191,14 +242,18 @@ public class CreateEventActivity extends AppCompatActivity {
                 // if data is valid save into database
                 if(eventID.isEmpty()){
                     eventID = name + System.currentTimeMillis();
-                    eventDB.insertEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc);
+                    eventDB.insertEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
 
                     //after creating event
-                    Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
-                    startActivity(i);
+                   Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
+                   startActivity(i);
+                    //Event e = new Event(eventID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
+                    //Log.d("eventCreated", e.toString());
                 }
                 else {
-                    eventDB.updateEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc);
+                    eventDB.updateEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
+                    Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
+                    startActivity(i);
                 }
             }
         });
