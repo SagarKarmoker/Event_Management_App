@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -99,13 +100,23 @@ public class SignupActivity extends AppCompatActivity {
                     boolean chUser = reUser.isChecked();
                     boolean chPass = rePass.isChecked();
 
-//                    if(chUser){
-//                        //save userid
-//                    }
-//
-//                    if(chPass){
-//                        //save user password
-//                    }
+                    //save user information using sharedpreferenec
+                    if(chUser || chPass){
+                        SharedPreferences pref = getSharedPreferences("savedUserInfo", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = pref.edit();
+
+                        if(chUser){
+                            //editor.putBoolean("isLoggedIn", true);
+                            editor.putString("username", userid);
+                        }
+
+                        if(chPass){
+                            //save user password
+                            editor.putString("password", pass);
+                        }
+                    }
+
+
                 }
                 else if (!userid.isEmpty() && !pass.isEmpty() && isLogin) {
                     //userid
