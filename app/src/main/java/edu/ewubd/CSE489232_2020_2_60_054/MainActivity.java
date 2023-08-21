@@ -1,5 +1,6 @@
 package edu.ewubd.CSE489232_2020_2_60_054;
-
+//Sagar Karmoker
+//ID: 2020-2-60-054
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -146,6 +147,7 @@ public class MainActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 //System.out.println(event.id);
                 db.deleteEvent(event.id);
+                adapter.notifyDataSetChanged();
             }
         });
 
