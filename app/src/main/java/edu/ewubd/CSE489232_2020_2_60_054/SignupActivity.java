@@ -178,7 +178,7 @@ public class SignupActivity extends AppCompatActivity {
         exitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressed();
+                //onBackPressed();
             }
         });
 

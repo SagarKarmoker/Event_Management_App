@@ -21,7 +21,9 @@ public class MainActivity extends Activity {
     Button createBtn, historyBtn, exitBtn;
     private ListView eventList;
     private ArrayList<Event> events;
+    private ArrayList<Event> pastEvents;
     private CustomEventAdapter adapter; //dynamically add the data
+    private CustomEventAdapter adapterPast;
 
     EventDB db;
 
@@ -32,6 +34,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_activity); // resource.layout_directory.activityxml_file_name
         eventList = findViewById(R.id.eventList);
         events = new ArrayList<>();
+        pastEvents = new ArrayList<>();
 
         db = new EventDB(this);
 
@@ -50,11 +53,20 @@ public class MainActivity extends Activity {
         exitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressed();
                 SharedPreferences pref = getSharedPreferences("savedUserInfo", MODE_PRIVATE);
                 SharedPreferences.Editor editor = pref.edit();
                 editor.putBoolean("isLoggedIn", false);
                 editor.apply();
+                Intent i = new Intent(MainActivity.this, SignupActivity.class);
+                startActivity(i);
+            }
+        });
+
+        adapterPast = new CustomEventAdapter(this, pastEvents);
+        historyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                eventList.setAdapter(adapterPast);
             }
         });
 
@@ -84,9 +96,17 @@ public class MainActivity extends Activity {
                     String desc = cur.getString(8);
                     String type = cur.getString(9);
 
-                    Event event = new Event(ID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
-                    System.out.println(event.toString());
-                    events.add(event);
+                    if(_date < System.currentTimeMillis()){
+                        Event event = new Event(ID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
+                        System.out.println(event.toString());
+                        pastEvents.add(event);
+                    }
+                    else{
+                        Event event = new Event(ID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
+                        System.out.println(event.toString());
+                        events.add(event);
+                    }
+
                 }
             }
             cur.close();

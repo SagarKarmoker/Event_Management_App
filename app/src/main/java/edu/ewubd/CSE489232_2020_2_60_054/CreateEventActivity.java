@@ -264,7 +264,8 @@ public class CreateEventActivity extends AppCompatActivity {
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("cancel btn");
+                Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
+                startActivity(i);
             }
         });
 
