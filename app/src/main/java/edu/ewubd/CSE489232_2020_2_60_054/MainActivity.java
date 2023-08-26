@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -50,6 +51,10 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 onBackPressed();
+                SharedPreferences pref = getSharedPreferences("savedUserInfo", MODE_PRIVATE);
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putBoolean("isLoggedIn", false);
+                editor.apply();
             }
         });
 
@@ -71,15 +76,15 @@ public class MainActivity extends Activity {
                     String ID = cur.getString(0);
                     String name = cur.getString(1);
                     String place = cur.getString(2);
-                    String type = cur.getString(3);
-                    long _date = cur.getLong(4);
-                    int _capacity = cur.getInt(5);
-                    double _budget = cur.getDouble(6);
-                    String email = cur.getString(7);
-                    String phone = cur.getString(8);
-                    String desc = cur.getString(9);
+                    long _date = cur.getLong(3);
+                    int _capacity = cur.getInt(4);
+                    double _budget = cur.getDouble(5);
+                    String email = cur.getString(6);
+                    String phone = cur.getString(7);
+                    String desc = cur.getString(8);
+                    String type = cur.getString(9);
 
-                    Event event = new Event(ID, name, place, type, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc);
+                    Event event = new Event(ID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
                     System.out.println(event.toString());
                     events.add(event);
                 }

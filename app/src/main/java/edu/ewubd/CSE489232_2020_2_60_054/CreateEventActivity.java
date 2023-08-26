@@ -242,6 +242,7 @@ public class CreateEventActivity extends AppCompatActivity {
                 // if data is valid save into database
                 if(eventID.isEmpty()){
                     eventID = name + System.currentTimeMillis();
+                    Log.d("emailcheck", email);
                     eventDB.insertEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
 
                     //after creating event

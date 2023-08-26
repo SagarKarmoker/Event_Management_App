@@ -12,7 +12,7 @@ public class Event {
     String description = "";
     String eventType = "";
 
-    public Event(String id, String name, String place, String eventType, String datetime,String capacity,String budget,String email,String phone,String description){
+    public Event(String id, String name, String place, String datetime,String capacity,String budget,String email,String phone,String description,String eventType){
         this.id = id;
         this.name = name;
         this.place = place;

@@ -61,6 +61,19 @@ public class SignupActivity extends AppCompatActivity {
 
         this.changeView();
 
+        SharedPreferences pref = getSharedPreferences("savedUserInfo", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+
+        if(pref.getBoolean("isUserInfoSaved", false)){
+            suUser.setText(pref.getString("username", ""));
+            suPass.setText(pref.getString("password", ""));
+        }
+
+        if(pref.getBoolean("isLoggedIn", false)){
+            Intent i = new Intent(SignupActivity.this, MainActivity.class);
+            startActivity(i);
+        }
+
         goBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,30 +115,42 @@ public class SignupActivity extends AppCompatActivity {
 
                     //save user information using sharedpreferenec
                     if(chUser || chPass){
-                        SharedPreferences pref = getSharedPreferences("savedUserInfo", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = pref.edit();
-
                         if(chUser){
                             //editor.putBoolean("isLoggedIn", true);
                             editor.putString("username", userid);
+                            suUser.setText(pref.getString("username", ""));
                         }
 
                         if(chPass){
                             //save user password
                             editor.putString("password", pass);
+                            suPass.setText(pref.getString("password", ""));
                         }
                     }
 
 
                 }
                 else if (!userid.isEmpty() && !pass.isEmpty() && isLogin) {
+                    boolean isUser = true;
+                    boolean isPass = true;
                     //userid
                     if(userid.length() < 4 || !userid.matches("^[a-zA-Z0-9 ]+$")){
                         err += "Invalid userid (4-12 long and only alphabets and number)\n";
+                        isUser=false;
                     }
 
                     if(pass.length() < 8){
                         err += "Please Check your password\n";
+                        isPass = false;
+                    }
+
+                    if(isUser && isPass){
+                        Intent i = new Intent(SignupActivity.this, MainActivity.class);
+                        //signup data
+                        editor.putBoolean("isLoggedIn", true);
+                        editor.putBoolean("isUserInfoSaved", true);
+                        editor.apply();
+                        startActivity(i);
                     }
                 }
                 else {
@@ -137,9 +162,15 @@ public class SignupActivity extends AppCompatActivity {
                     showErrorDialog(err);
                 }
                 else{
-                    Intent i = new Intent(SignupActivity.this, MainActivity.class);
                     //signup data
-                    startActivity(i);
+                    //TODO save data
+                    editor.putString("name", name);
+                    editor.putString("email", email);
+                    editor.putString("phone", phone);
+                    editor.putBoolean("isUserInfoSaved", true);
+                    editor.apply();
+                    isLogin = !isLogin;
+                    changeView();
                 }
             }
         });
