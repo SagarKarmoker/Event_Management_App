@@ -238,24 +238,26 @@ public class CreateEventActivity extends AppCompatActivity {
                     // error text show
                     errorTv.setText(err);
                 }
+                else{
+                    // if data is valid save into database
+                    if(eventID.isEmpty()){
+                        eventID = name + System.currentTimeMillis();
+                        Log.d("emailcheck", email);
+                        eventDB.insertEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
 
-                // if data is valid save into database
-                if(eventID.isEmpty()){
-                    eventID = name + System.currentTimeMillis();
-                    Log.d("emailcheck", email);
-                    eventDB.insertEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
+                        //after creating event
+                        Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
+                        startActivity(i);
+                        //Event e = new Event(eventID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
+                        //Log.d("eventCreated", e.toString());
+                    }
+                    else {
+                        eventDB.updateEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
+                        Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
+                        startActivity(i);
+                    }
+                }
 
-                    //after creating event
-                   Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
-                   startActivity(i);
-                    //Event e = new Event(eventID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
-                    //Log.d("eventCreated", e.toString());
-                }
-                else {
-                    eventDB.updateEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
-                    Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
-                    startActivity(i);
-                }
             }
         });
 
