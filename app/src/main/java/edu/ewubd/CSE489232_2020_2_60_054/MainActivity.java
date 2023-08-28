@@ -245,6 +245,7 @@ public class MainActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 //System.out.println(event.id);
                 db.deleteEvent(event.id);
+                deleteRemote(event.id);
                 events.remove(event);
                 adapter.notifyDataSetChanged();
             }
@@ -252,5 +253,17 @@ public class MainActivity extends Activity {
 
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+
+    private void updateRemote(String eventId){
+        String[] keys = {"action", "sid", "semester", "id"};
+        String[] values = {"remove", "2020-2-60-054", "2023-2", eventId};
+        httpRequest(keys, values);
+    }
+    private void deleteRemote(String eventId){
+        String[] keys = {"action", "sid", "semester", "id"};
+        String[] values = {"remove", "2020-2-60-054", "2023-2", eventId};
+        httpRequest(keys, values);
     }
 }

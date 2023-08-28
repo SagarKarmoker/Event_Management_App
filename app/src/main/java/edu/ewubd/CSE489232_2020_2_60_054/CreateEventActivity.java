@@ -271,6 +271,10 @@ public class CreateEventActivity extends AppCompatActivity {
                     }
                     else {
                         eventDB.updateEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
+                        String keys[] = {"action", "sid", "semester", "id", "title", "place", "type", "date_time", "capacity", "budget", "email", "phone", "des"};
+                        String values[] = {"backup", "2020-2-60-054", "2023-2", eventID, name, place, type, String.valueOf(_date),String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc};
+                        httpRequest(keys, values);
+
                         Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
                         startActivity(i);
                     }
