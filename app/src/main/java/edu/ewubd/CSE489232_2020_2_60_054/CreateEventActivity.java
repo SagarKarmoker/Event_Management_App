@@ -312,7 +312,9 @@ public class CreateEventActivity extends AppCompatActivity {
                 for (int i=0; i<keys.length; i++){
                     params.add(new BasicNameValuePair(keys[i],values[i]));
                 }
-                String url= "https://cse489.helloworlddev.software/index.php"; // TODO Change with sir website link
+                //Tested my own server:
+                //https://cse489.helloworlddev.software/index.php?action=restore&sid=2020-2-60-054&semester=2023-2
+                String url= "https://www.muthosoft.com/univ/cse489/index.php"; // TODO Change it
                 String data="";
                 try {
                     data=JSONParser.getInstance().makeHttpRequest(url,"POST",params);
