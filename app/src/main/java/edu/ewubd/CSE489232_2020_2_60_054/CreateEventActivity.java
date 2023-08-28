@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,14 +15,23 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.NameValuePair;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.message.BasicNameValuePair;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +47,8 @@ public class CreateEventActivity extends AppCompatActivity {
     private String eventID = "";
     private EventDB eventDB; // Database
 
+    ArrayList<Event> events;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +57,7 @@ public class CreateEventActivity extends AppCompatActivity {
 
         // database object
         eventDB = new EventDB(this);
+        events = new ArrayList<>();
 
         // edittext fields
         etName = findViewById(R.id.etName);
@@ -245,11 +258,16 @@ public class CreateEventActivity extends AppCompatActivity {
                         Log.d("emailcheck", email);
                         eventDB.insertEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
 
+                        String keys[] = {"action", "sid", "semester", "id", "title", "place", "type", "date_time", "capacity", "budget", "email", "phone", "des"};
+                        String values[] = {"backup", "2020-2-60-054", "2023-2", eventID, name, place, type, String.valueOf(_date),String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc};
+                        httpRequest(keys, values);
+
                         //after creating event
                         Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
                         startActivity(i);
-                        //Event e = new Event(eventID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
-                        //Log.d("eventCreated", e.toString());
+
+                        //activity onDestory will be called
+                        finish();
                     }
                     else {
                         eventDB.updateEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
@@ -281,6 +299,40 @@ public class CreateEventActivity extends AppCompatActivity {
         });
         // end of on create
     }
+
+    private void httpRequest(final String keys[],final String values[]){
+        new AsyncTask<Void,Void,String>(){
+            @Override
+            protected String doInBackground(Void... voids) {
+                List<NameValuePair> params=new ArrayList<NameValuePair>();
+                for (int i=0; i<keys.length; i++){
+                    params.add(new BasicNameValuePair(keys[i],values[i]));
+                }
+                String url= "https://cse489.helloworlddev.software/index.php"; // TODO Change with sir website link
+                String data="";
+                try {
+                    data=JSONParser.getInstance().makeHttpRequest(url,"POST",params);
+                    System.out.println(data);
+                    return data;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+            protected void onPostExecute(String data){
+                if(data!=null){
+                    System.out.println(data);
+                    System.out.println("Ok2");
+                    //updateEventListByServerData(data);
+                    Toast.makeText(getApplicationContext(),data,Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute();
+    }
+
+
+
+
 
     private void showErrorDialog(String errMsg){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

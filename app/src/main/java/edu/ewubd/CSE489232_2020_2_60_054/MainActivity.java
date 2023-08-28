@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,14 +15,22 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.NameValuePair;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.message.BasicNameValuePair;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity {
     Button createBtn, historyBtn, exitBtn;
     private ListView eventList;
-    private ArrayList<Event> events;
-    private ArrayList<Event> pastEvents;
+    private ArrayList<Event> events = new ArrayList<>();
+    private ArrayList<Event> pastEvents = new ArrayList<>();
     private CustomEventAdapter adapter; //dynamically add the data
     private CustomEventAdapter adapterPast;
 
@@ -33,8 +42,6 @@ public class MainActivity extends Activity {
         //modify after that
         setContentView(R.layout.main_activity); // resource.layout_directory.activityxml_file_name
         eventList = findViewById(R.id.eventList);
-        events = new ArrayList<>();
-        pastEvents = new ArrayList<>();
 
         db = new EventDB(this);
 
@@ -75,7 +82,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onStart() {
         super.onStart();
-        loadEvents(); //loading from database
+        loadEvents(); //loading from local database
+        String[] keys = {"action", "sid", "semester"};
+        String[] values = {"restore", "2020-2-60-054", "2023-2"};
+        httpRequest(keys, values);
     }
 
     private void loadEvents(){
@@ -133,7 +143,6 @@ public class MainActivity extends Activity {
                 i.putExtra("EventEmail", events.get(position).email);
                 i.putExtra("EventPhone", events.get(position).phone);
                 i.putExtra("EventDesc", events.get(position).description);
-                //todo finish it
                 startActivity(i);
             }
         });
@@ -150,6 +159,70 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
+    }
+
+    private void httpRequest(final String keys[],final String values[]){
+        new AsyncTask<Void,Void,String>(){
+            @Override
+            protected String doInBackground(Void... voids) {
+                List<NameValuePair> params=new ArrayList<NameValuePair>();
+                for (int i=0; i<keys.length; i++){
+                    params.add(new BasicNameValuePair(keys[i],values[i]));
+                }
+                String url= "https://cse489.helloworlddev.software/index.php"; //TODO Update it with sir server
+                String data="";
+                try {
+                    data=JSONParser.getInstance().makeHttpRequest(url,"POST",params);
+                    System.out.println(data);
+                    return data;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+            protected void onPostExecute(String data){
+                if(data!=null){
+                    System.out.println(data);
+                    System.out.println("Ok2");
+                    updateEventListByServerData(data);
+                    Log.d("remoteDB", data);
+                    Toast.makeText(getApplicationContext(),data,Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute();
+    }
+
+    // string format data will be received
+    private void updateEventListByServerData(String data){
+        System.out.println("found");
+        try{
+            JSONObject jo = new JSONObject(data);
+            if(jo.has("events")){ // server send it as keyword
+                events.clear();
+                JSONArray ja = jo.getJSONArray("events");
+                for(int i=0; i<ja.length(); i++){
+                    JSONObject event = ja.getJSONObject(i); // object as key value pair
+                    String id = event.getString("id");
+                    String title = event.getString("title");
+                    String place = event.getString("place");
+                    String type = event.getString("type");
+                    Long date_time = event.getLong("date_time");
+                    int capacity = event.getInt("capacity");
+                    double budget = event.getDouble("budget");
+                    String email = event.getString("email");
+                    String phone = event.getString("phone");
+                    String des = event.getString("des");
+
+//                    Event(String id, String name, String place, String datetime,String capacity,String budget,String email,String phone,String description,String eventType)
+                    Event e = new Event(id, title, place, String.valueOf(date_time), String.valueOf(capacity), String.valueOf(budget), email, phone, des, type);
+                    events.add(e);
+                }
+                //System.out.println(events.size());
+                adapter.notifyDataSetChanged();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -172,6 +245,7 @@ public class MainActivity extends Activity {
             public void onClick(DialogInterface dialog, int which) {
                 //System.out.println(event.id);
                 db.deleteEvent(event.id);
+                events.remove(event);
                 adapter.notifyDataSetChanged();
             }
         });
