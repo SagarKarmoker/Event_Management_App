@@ -60,12 +60,12 @@ public class MainActivity extends Activity {
         exitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences pref = getSharedPreferences("savedUserInfo", MODE_PRIVATE);
-                SharedPreferences.Editor editor = pref.edit();
-                editor.putBoolean("isLoggedIn", false);
-                editor.apply();
-                Intent i = new Intent(MainActivity.this, SignupActivity.class);
-                startActivity(i);
+                //SharedPreferences pref = getSharedPreferences("savedUserInfo", MODE_PRIVATE);
+                //SharedPreferences.Editor editor = pref.edit();
+                //editor.putBoolean("isLoggedIn", false);
+                //editor.apply();
+                //finish();
+                moveTaskToBack(true);
             }
         });
 
@@ -258,7 +258,7 @@ public class MainActivity extends Activity {
 
     private void updateRemote(String eventId){
         String[] keys = {"action", "sid", "semester", "id"};
-        String[] values = {"remove", "2020-2-60-054", "2023-2", eventId};
+        String[] values = {"backup", "2020-2-60-054", "2023-2", eventId};
         httpRequest(keys, values);
     }
     private void deleteRemote(String eventId){
