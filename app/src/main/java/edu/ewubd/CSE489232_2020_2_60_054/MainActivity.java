@@ -29,8 +29,8 @@ import java.util.List;
 public class MainActivity extends Activity {
     Button createBtn, historyBtn, exitBtn;
     private ListView eventList;
-    private ArrayList<Event> events = new ArrayList<>();
-    private ArrayList<Event> pastEvents = new ArrayList<>();
+    private ArrayList<Event> events;
+    private ArrayList<Event> pastEvents;
     private CustomEventAdapter adapter; //dynamically add the data
     private CustomEventAdapter adapterPast;
 
@@ -39,6 +39,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState); // runtime call the abstract method
+        events = new ArrayList<>();
+        pastEvents = new ArrayList<>();
+
         //modify after that
         setContentView(R.layout.main_activity); // resource.layout_directory.activityxml_file_name
         eventList = findViewById(R.id.eventList);
@@ -105,14 +108,15 @@ public class MainActivity extends Activity {
                     String phone = cur.getString(7);
                     String desc = cur.getString(8);
                     String type = cur.getString(9);
+                    String remind = cur.getString(10);
 
                     if(_date < System.currentTimeMillis()){
-                        Event event = new Event(ID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
+                        Event event = new Event(ID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type, remind);
                         System.out.println(event.toString());
                         pastEvents.add(event);
                     }
                     else{
-                        Event event = new Event(ID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type);
+                        Event event = new Event(ID, name, place, String.valueOf(_date), String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, type, remind);
                         System.out.println(event.toString());
                         events.add(event);
                     }
@@ -147,7 +151,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        //todo 1. click create event 2. longpress edit or delete
+        //1. click create event 2. longpress edit or delete
 
         // handle the long-click on an event-list item
         eventList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -171,7 +175,8 @@ public class MainActivity extends Activity {
                 }
                 //Tested my own server:
                 //https://cse489.helloworlddev.software/index.php?action=restore&sid=2020-2-60-054&semester=2023-2
-                String url= "https://www.muthosoft.com/univ/cse489/index.php"; //TODO Update it
+                //https://www.muthosoft.com/univ/cse489/index.php
+                String url= "https://cse489.helloworlddev.software/index.php"; //TODO Update it
                 String data="";
                 try {
                     data=JSONParser.getInstance().makeHttpRequest(url,"POST",params);
@@ -214,10 +219,17 @@ public class MainActivity extends Activity {
                     String email = event.getString("email");
                     String phone = event.getString("phone");
                     String des = event.getString("des");
+                    String remind = event.getString("reminder");
 
-//                    Event(String id, String name, String place, String datetime,String capacity,String budget,String email,String phone,String description,String eventType)
-                    Event e = new Event(id, title, place, String.valueOf(date_time), String.valueOf(capacity), String.valueOf(budget), email, phone, des, type);
-                    events.add(e);
+                    //Event(String id, String name, String place, String datetime,String capacity,String budget,String email,String phone,String description,String eventType)
+                    Event e = new Event(id, title, place, String.valueOf(date_time), String.valueOf(capacity), String.valueOf(budget), email, phone, des, type, remind);
+
+                    if(date_time < System.currentTimeMillis()){
+                        pastEvents.add(e);
+                    }
+                    else{
+                        events.add(e);
+                    }
                 }
                 //System.out.println(events.size());
                 adapter.notifyDataSetChanged();

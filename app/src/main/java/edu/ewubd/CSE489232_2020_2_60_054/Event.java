@@ -11,8 +11,9 @@ public class Event {
     String phone = "";
     String description = "";
     String eventType = "";
+    String reminder = "";
 
-    public Event(String id, String name, String place, String datetime,String capacity,String budget,String email,String phone,String description,String eventType){
+    public Event(String id, String name, String place, String datetime,String capacity,String budget,String email,String phone,String description,String eventType, String reminder){
         this.id = id;
         this.name = name;
         this.place = place;
@@ -23,6 +24,7 @@ public class Event {
         this.phone = phone;
         this.description = description;
         this.eventType = eventType;
+        this.reminder = reminder;
     }
 
     @Override
@@ -38,6 +40,7 @@ public class Event {
                 ", phone='" + phone + '\'' +
                 ", description='" + description + '\'' +
                 ", eventType='" + eventType + '\'' +
+                ", reminder='" + reminder + '\'' +
                 '}';
     }
 }

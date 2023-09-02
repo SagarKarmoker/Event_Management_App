@@ -24,7 +24,8 @@ public class EventDB extends SQLiteOpenHelper {
                 + "email TEXT,"
                 + "phone TEXT,"
                 + "description TEXT,"
-                + "type TEXT"
+                + "type TEXT,"
+                + "reminder INT"
                 + ")";
         db.execSQL(sql);
     }
@@ -33,7 +34,7 @@ public class EventDB extends SQLiteOpenHelper {
         System.out.println("Write code to modify database schema here");
         // db.execSQL("ALTER table my_table  ......");
     }
-    public void insertEvent(String ID, String title, String place, long datetime, int capacity, double budget, String email, String phone, String description, String type) {
+    public void insertEvent(String ID, String title, String place, long datetime, int capacity, double budget, String email, String phone, String description, String type, long reminder) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cols = new ContentValues();
         cols.put("ID", ID);
@@ -46,6 +47,7 @@ public class EventDB extends SQLiteOpenHelper {
         cols.put("email", email);
         cols.put("phone", phone);
         cols.put("description", description);
+        cols.put("reminder", reminder);
         db.insert("events", null ,  cols);
         db.close();
     }
@@ -53,7 +55,7 @@ public class EventDB extends SQLiteOpenHelper {
     /*
     Use hashmap (key, value will be matched) to custom updating feature, for updating particular data
     * */
-    public void updateEvent(String ID, String title, String place, long datetime, int capacity, double budget, String email, String phone, String description, String type) {
+    public void updateEvent(String ID, String title, String place, long datetime, int capacity, double budget, String email, String phone, String description, String type, long reminder) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("title", title);
@@ -65,6 +67,7 @@ public class EventDB extends SQLiteOpenHelper {
         values.put("email", email);
         values.put("phone", phone);
         values.put("description", description);
+        values.put("reminder", reminder);
         db.update("events", values, "ID=?", new String[ ] {ID} );
         db.close();
     }

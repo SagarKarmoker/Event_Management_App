@@ -3,7 +3,9 @@ package edu.ewubd.CSE489232_2020_2_60_054;
 // ID:2020-2-60-054
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -39,7 +41,7 @@ import java.util.regex.Pattern;
 public class CreateEventActivity extends AppCompatActivity {
 
     // R java generated Resource file
-    EditText etName, etPlace, etDate, etCapacity, etBudget, etEmail, etPhone, etDsc;
+    EditText etName, etPlace, etDate, etCapacity, etBudget, etEmail, etPhone, etDsc, etRemind;
     Button cancelBtn, shareBtn, saveBtn;
     TextView errorTv;
 
@@ -47,7 +49,8 @@ public class CreateEventActivity extends AppCompatActivity {
     private String eventID = "";
     private EventDB eventDB; // Database
 
-    ArrayList<Event> events;
+    static final int ALARM_CODE = 100;
+    AlarmManager alarmManager;
 
 
     @Override
@@ -57,7 +60,7 @@ public class CreateEventActivity extends AppCompatActivity {
 
         // database object
         eventDB = new EventDB(this);
-        events = new ArrayList<>();
+        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         // edittext fields
         etName = findViewById(R.id.etName);
@@ -68,6 +71,7 @@ public class CreateEventActivity extends AppCompatActivity {
         etEmail= findViewById(R.id.etEmail);
         etPhone= findViewById(R.id.etPhone);
         etDsc = findViewById(R.id.etDsc);
+        etRemind = findViewById(R.id.etRemind);
 
         //radio button
         rIndoor = findViewById(R.id.radioIndoor);
@@ -142,15 +146,17 @@ public class CreateEventActivity extends AppCompatActivity {
                 String phone = etPhone.getText().toString();
                 String desc = etDsc.getText().toString();
                 String type = "";
+                String reminder = etRemind.getText().toString();
 
                 String err = "";
 
                 int _capacity = Integer.parseInt(capacity);
                 double _budget = Double.parseDouble(budget);
                 long _date = 0;
+                long remind = Long.parseLong(reminder);
 
                 // input field check
-                if(!name.isEmpty() && !place.isEmpty() && !date.isEmpty() && !capacity.isEmpty() && !budget.isEmpty() && !email.isEmpty() && !phone.isEmpty() && !desc.isEmpty()){
+                if(!name.isEmpty() && !place.isEmpty() && !date.isEmpty() && !capacity.isEmpty() && !budget.isEmpty() && !email.isEmpty() && !phone.isEmpty() && !desc.isEmpty() && !reminder.isEmpty()){
                     //name
                     if(name.length() < 4 || name.length() > 12 || !name.matches("^[a-zA-Z ]+$")){
                         err += "Invalid Name (4-12 long and only alphabets)\n";
@@ -240,6 +246,13 @@ public class CreateEventActivity extends AppCompatActivity {
                     if(desc.length() < 10 || desc.length() > 1000){
                         err += "Invalid description format (10-1000 characters)\n";
                     }
+
+                    if(remind <= 0){
+                        err += "Invalid remind time\n";
+                    }
+                    else{
+                        remind = _date - remind * 60000;
+                    }
                 }
                 else{
                     err += "Fill all the fields\n";
@@ -256,12 +269,14 @@ public class CreateEventActivity extends AppCompatActivity {
                     if(eventID.isEmpty()){
                         eventID = name + System.currentTimeMillis();
                         Log.d("emailcheck", email);
-                        eventDB.insertEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
+                        eventDB.insertEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type, remind);
 
-                        String keys[] = {"action", "sid", "semester", "id", "title", "place", "type", "date_time", "capacity", "budget", "email", "phone", "des"};
-                        String values[] = {"backup", "2020-2-60-054", "2023-2", eventID, name, place, type, String.valueOf(_date),String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc};
+                        String keys[] = {"action", "sid", "semester", "id", "title", "place", "type", "date_time", "capacity", "budget", "email", "phone", "des", "reminder"};
+                        String values[] = {"backup", "2020-2-60-054", "2023-2", eventID, name, place, type, String.valueOf(_date),String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, String.valueOf(remind)};
                         httpRequest(keys, values);
 
+                        Log.d("Reminder", String.valueOf(remind));
+                        setAlarm(remind);
                         //after creating event
                         Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
                         startActivity(i);
@@ -270,10 +285,11 @@ public class CreateEventActivity extends AppCompatActivity {
                         finish();
                     }
                     else {
-                        eventDB.updateEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type);
-                        String keys[] = {"action", "sid", "semester", "id", "title", "place", "type", "date_time", "capacity", "budget", "email", "phone", "des"};
-                        String values[] = {"backup", "2020-2-60-054", "2023-2", eventID, name, place, type, String.valueOf(_date),String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc};
+                        eventDB.updateEvent(eventID, name, place, _date, _capacity, _budget, email, phone, desc, type, remind);
+                        String keys[] = {"action", "sid", "semester", "id", "title", "place", "type", "date_time", "capacity", "budget", "email", "phone", "des", "reminder"};
+                        String values[] = {"backup", "2020-2-60-054", "2023-2", eventID, name, place, type, String.valueOf(_date),String.valueOf(_capacity), String.valueOf(_budget), email, phone, desc, String.valueOf(remind)};
                         httpRequest(keys, values);
+                        setAlarm(remind);
 
                         Intent i = new Intent(CreateEventActivity.this, MainActivity.class);
                         startActivity(i);
@@ -314,7 +330,8 @@ public class CreateEventActivity extends AppCompatActivity {
                 }
                 //Tested my own server:
                 //https://cse489.helloworlddev.software/index.php?action=restore&sid=2020-2-60-054&semester=2023-2
-                String url= "https://www.muthosoft.com/univ/cse489/index.php"; // TODO Change it
+                //https://www.muthosoft.com/univ/cse489/index.php
+                String url= "https://cse489.helloworlddev.software/index.php"; // TODO Change it
                 String data="";
                 try {
                     data=JSONParser.getInstance().makeHttpRequest(url,"POST",params);
@@ -337,7 +354,12 @@ public class CreateEventActivity extends AppCompatActivity {
     }
 
 
-
+    private void setAlarm(long time) {
+        Intent i = new Intent(CreateEventActivity.this, MyAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(CreateEventActivity.this, ALARM_CODE, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        // Use RTC_WAKEUP for real-time alarms
+        alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
+    }
 
 
     private void showErrorDialog(String errMsg){
