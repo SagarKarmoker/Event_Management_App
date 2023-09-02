@@ -356,7 +356,7 @@ public class CreateEventActivity extends AppCompatActivity {
 
     private void setAlarm(long time) {
         Intent i = new Intent(CreateEventActivity.this, MyAlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(CreateEventActivity.this, ALARM_CODE, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(CreateEventActivity.this, ALARM_CODE, i, PendingIntent.FLAG_MUTABLE);
         // Use RTC_WAKEUP for real-time alarms
         alarmManager.set(AlarmManager.RTC_WAKEUP, time, pendingIntent);
     }
